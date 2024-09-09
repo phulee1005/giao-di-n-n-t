@@ -47,7 +47,7 @@ const App = () => {
                 <ScrollView contentContainerStyle={styles.scrollView}>
                     {/* Hình ảnh với chiều rộng bằng 80% chiều rộng màn hình và điều chỉnh chiều cao phù hợp */}
                     <Image
-                        source={{ uri: 'https://example.com/your-image-url.jpg' }}
+                        source={{ uri: 'https://i.pinimg.com/564x/c0/79/b1/c079b14f42046c1c6d3abbc703fb1ffb.jpg' }}
                         style={[
                             styles.image,
                             isPortrait ? styles.imagePortrait : styles.imageLandscape // Điều chỉnh chiều cao theo hướng màn hình
@@ -70,10 +70,10 @@ const App = () => {
                         ]}
                     >
                         <View style={styles.buttonContainer}>
-                            <Button title="Button 1" onPress={() => alert('Button 1 Pressed')} />
+                            <Button title="Button 1" onPress={() => alert('Phú lê chào bạn')} />
                         </View>
                         <View style={styles.buttonContainer}>
-                            <Button title="Button 2" onPress={() => alert('Button 2 Pressed')} />
+                            <Button title="Button 2" onPress={() => alert('sợ quá cơ    ')} />
                         </View>
                     </View>
                 </ScrollView>
