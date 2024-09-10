@@ -1,138 +1,162 @@
-import React, { useState, useEffect } from 'react';
-import { View, Button, StyleSheet, Dimensions, Image, TextInput, KeyboardAvoidingView, Platform, ScrollView, StatusBar } from 'react-native';
 
-// Lấy chiều rộng và chiều cao của màn hình
-const { width, height } = Dimensions.get('window');
+import React, { useEffect, useState } from 'react';
+import { View, Button, StyleSheet, Dimensions, Image, TextInput, KeyboardAvoidingView, Platform, StatusBar, ImageBackground } from 'react-native';
 
-const App = () => {
-    const [isPortrait, setIsPortrait] = useState(height > width); // Xác định chế độ dọc hay ngang
-    const [inputValue, setInputValue] = useState(''); // Trạng thái lưu giá trị nhập liệu
+const DynamicLayoutWithStatusBar: React.FC = () => {
+    const [isPortrait, setIsPortrait] = useState(true);
+    const [inputValue, setInputValue] = useState(''); // Trạng thái để lưu nội dung nhập vào
 
-    // Hàm kiểm tra hướng màn hình
-    const handleOrientationChange = ({ window }) => {
-        setIsPortrait(window.height > window.width); // Cập nhật trạng thái hướng màn hình
+    const isPortraitMode = () => {
+        const dim = Dimensions.get('window');
+        return dim.height >= dim.width;
     };
 
-    // Thêm listener để phát hiện sự thay đổi hướng màn hình
+    const handleOrientationChange = () => {
+        setIsPortrait(isPortraitMode());
+    };
+
     useEffect(() => {
         const subscription = Dimensions.addEventListener('change', handleOrientationChange);
+        handleOrientationChange();
 
-        // Xóa listener khi component unmount
         return () => {
-            if (subscription) {
-                subscription.remove();
-            }
+            subscription.remove();
         };
     }, []);
 
-    return (
-        <>
-            {/* Tùy chỉnh thanh trạng thái */}
-            <StatusBar
-                barStyle={Platform.select({
-                    ios: isPortrait ? 'dark-content' : 'light-content', // iOS: dark content khi portrait, light content khi landscape
-                    android: isPortrait ? 'light-content' : 'dark-content', // Android: ngược lại so với iOS
-                })}
-                backgroundColor={Platform.select({
-                    ios: isPortrait ? '#f8f8f8' : '#000', // iOS: nền sáng khi portrait, tối khi landscape
-                    android: isPortrait ? '#000' : '#f8f8f8', // Android: nền tối khi portrait, sáng khi landscape
-                })}
-            />
+    const screenWidth = Dimensions.get('window').width;
+    const screenHeight = Dimensions.get('window').height;
+    const imageWidth = screenWidth * 0.8;
+    const imageHeight = isPortrait ? imageWidth / (4 / 3) : screenHeight * 0.4;
 
+    // Tùy chỉnh màu nền và kiểu chữ của thanh trạng thái
+    const statusBarStyle = isPortrait
+        ? { backgroundColor: '#6200ee', barStyle: 'light-content' }  // Chế độ dọc: Nền tím, chữ sáng
+        : { backgroundColor: '#ffffff', barStyle: 'dark-content' };  // Chế độ ngang: Nền trắng, chữ tối
+
+    const handleButton1Press = () => {
+        alert(`chào mấy ní nha ${inputValue}`); // Hiển thị nội dung khi bấm nút 1
+    };
+
+   
+
+    const handleButton2Press = () => {
+        alert(`Chào${inputValue} em ,a đứng đây từ chiều`); // Hiển thị nội dung khi bấm nút 2
+    };
+;
+
+    return (
+        <ImageBackground
+            source={{ uri: 'https://i.pinimg.com/736x/7e/ee/bd/7eeebd9cff4c8dc78b7601e2c069a4c3.jpg' }}
+            style={styles.background}
+        >
             <KeyboardAvoidingView
                 style={styles.container}
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // Điều chỉnh theo hệ điều hành
-                keyboardVerticalOffset={100} // Offset để tránh che các thành phần
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={80}
             >
-                <ScrollView contentContainerStyle={styles.scrollView}>
-                    {/* Hình ảnh với chiều rộng bằng 80% chiều rộng màn hình và điều chỉnh chiều cao phù hợp */}
-                    <Image
-                        source={{ uri: 'https://i.pinimg.com/564x/c0/79/b1/c079b14f42046c1c6d3abbc703fb1ffb.jpg' }}
-                        style={[
-                            styles.image,
-                            isPortrait ? styles.imagePortrait : styles.imageLandscape // Điều chỉnh chiều cao theo hướng màn hình
-                        ]}
-                        resizeMode="contain"
-                    />
+                <StatusBar
+                    backgroundColor={statusBarStyle.backgroundColor}
+                    barStyle={statusBarStyle.barStyle as 'default' | 'light-content' | 'dark-content'}
+                />
 
-                    {/* Trường nhập liệu */}
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Nhập vào gì đó kk"
-                        value={inputValue}
-                        onChangeText={setInputValue}
-                    />
+                <Image
+                    source={{ uri: 'https://i.pinimg.com/564x/c0/79/b1/c079b14f42046c1c6d3abbc703fb1ffb.jpg' }}
+                    style={{ width: imageWidth, height: imageHeight }}
+                    resizeMode="contain"
+                />
 
+                <TextInput
+                    style={[styles.input, { width: imageWidth }]} // Đặt chiều rộng bằng với hình ảnh
+                    placeholder="Nhập nội dung gì đi ní kk..."
+                    placeholderTextColor="#000000" // Màu chữ của placeholder
+                    textAlign="center" // Căn giữa chữ trong ô textbox
+                    value={inputValue} // Gán giá trị cho ô input
+                    onChangeText={setInputValue} // Cập nhật trạng thái khi nhập
+                />
+
+                <View
+                    style={[
+                        styles.buttonContainer,
+                        {
+                            flexDirection: isPortrait ? 'column' : 'row',
+                            alignItems: isPortrait ? 'center' : 'flex-start',
+                        }
+                    ]}
+                >
                     <View
                         style={[
                             styles.buttonWrapper,
-                            isPortrait ? styles.portrait : styles.landscape, // Thay đổi bố cục dựa trên hướng màn hình
+                            {
+                                width: isPortrait ? screenWidth / 2 : screenWidth * 0.3,
+                                marginHorizontal: isPortrait ? 0 : 10,
+                            }
                         ]}
                     >
-                        <View style={styles.buttonContainer}>
-                            <Button title="Button 1" onPress={() => alert('Phú lê chào bạn')} />
-                        </View>
-                        <View style={styles.buttonContainer}>
-                            <Button title="Button 2" onPress={() => alert('sợ quá cơ    ')} />
-                        </View>
+                        <Button
+                            title="Button 1"
+                            onPress={handleButton1Press} // Sử dụng hàm xử lý nút 1
+                            color="#000000" // Màu chữ nút
+                        />
                     </View>
-                </ScrollView>
+                    <View
+                        style={[
+                            styles.buttonWrapper,
+                            {
+                                width: isPortrait ? screenWidth / 2 : screenWidth * 0.3,
+                                marginHorizontal: isPortrait ? 0 : 10,
+                            }
+                        ]}
+                    >
+                        <Button
+                            title="Button 2"
+                            onPress={handleButton2Press} // Sử dụng hàm xử lý nút 2
+                            color="#000000" // Màu chữ nút
+                        />
+                    </View>
+                </View>
             </KeyboardAvoidingView>
-        </>
+        </ImageBackground>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: Platform.select({
-            ios: 20, // Padding cho iOS
-            android: 10, // Padding cho Android
-        }),
-        alignItems: 'center',
-    },
-    scrollView: {
-        flexGrow: 1,
+    background: {
+        flex: 1,  // Để chiếm toàn bộ không gian
         justifyContent: 'center',
         alignItems: 'center',
     },
-    image: {
-        width: width * 0.8, // Chiều rộng bằng 80% chiều rộng màn hình
-        marginBottom: 20, // Khoảng cách giữa ảnh và các nút bấm
-    },
-    imagePortrait: {
-        height: (width * 0.8) * 0.6, // Chiều cao theo tỷ lệ 0.6 trong chế độ dọc
-    },
-    imageLandscape: {
-        height: (width * 0.5) * 0.4, // Giảm chiều cao hình ảnh trong chế độ ngang
-    },
-    input: {
-        width: width * 0.8, // Chiều rộng bằng 80% chiều rộng màn hình
-        padding: 10,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-        marginBottom: 20, // Khoảng cách giữa trường nhập liệu và các nút
-    },
-    buttonWrapper: {
+    container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
     buttonContainer: {
-        margin: 10,
-        paddingHorizontal: Platform.select({
-            ios: 20, // Tăng padding ngang cho iOS
-            android: 10, // Giữ nguyên padding cho Android
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 20,
+    },
+    buttonWrapper: {
+        marginVertical: 10,
+        ...Platform.select({
+            ios: {
+                padding: 20, // Padding lớn hơn cho iOS
+            },
+            android: {
+                padding: 10, // Padding nhỏ hơn cho Android
+            },
         }),
     },
-    portrait: {
-        flexDirection: 'column', // Chế độ dọc: Nút xếp theo chiều dọc
-    },
-    landscape: {
-        flexDirection: 'row', // Chế độ ngang: Nút nằm cạnh nhau theo chiều ngang
-        justifyContent: 'space-between', // Khoảng cách đều giữa các nút
+    input: {
+        borderWidth: 1,
+        borderColor: 'black',  // Màu khung textbox là màu đen
+        padding: Platform.select({
+            ios: 15, // Đệm lớn hơn cho iOS
+            android: 10, // Đệm nhỏ hơn cho Android
+        }),
+        marginVertical: 20,
+        borderRadius: 5,
     },
 });
 
-export default App;
+export default DynamicLayoutWithStatusBar;
